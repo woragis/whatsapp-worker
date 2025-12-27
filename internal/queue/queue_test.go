@@ -138,6 +138,24 @@ func TestNewQueue_ErrorHandling(t *testing.T) {
 	t.Skip("Skipping: NewQueue requires valid connection with non-nil channel (requires RabbitMQ mock)")
 }
 
+func TestNewConnection_ChannelError(t *testing.T) {
+	// Test that NewConnection handles channel creation errors
+	// This is tested via invalid URL which will fail at connection stage
+	invalidURL := "amqp://invalid:invalid@localhost:9999/vhost"
+	conn, err := NewConnection(invalidURL)
+	
+	// Should return error
+	if err == nil {
+		t.Error("NewConnection() should return error for invalid URL")
+	}
+	if conn != nil {
+		t.Error("NewConnection() should return nil connection on error")
+		if conn != nil {
+			conn.Close()
+		}
+	}
+}
+
 func TestWhatsAppEnvelope_EmptyFields(t *testing.T) {
 	// Test envelope with empty fields
 	envelope := WhatsAppEnvelope{

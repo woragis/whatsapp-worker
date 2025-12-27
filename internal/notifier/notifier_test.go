@@ -139,6 +139,12 @@ func TestWhatsmeowNotifier_GetQRCode(t *testing.T) {
 	if qrCode != "" {
 		t.Errorf("GetQRCode() = %v, want empty string for new notifier", qrCode)
 	}
+
+	// Test that GetQRCode can be called multiple times safely
+	qrCode2 := notifier.GetQRCode()
+	if qrCode2 != qrCode {
+		t.Errorf("GetQRCode() should return consistent value, got %v, want %v", qrCode2, qrCode)
+	}
 }
 
 func TestWhatsmeowNotifier_Disconnect(t *testing.T) {
@@ -179,16 +185,21 @@ func TestWhatsmeowNotifier_Send_NotConnected(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	
+	// Test with phone number starting with +
 	err = notifier.Send(ctx, "+1234567890", "test message")
-
-	// Should return error when not connected
 	if err == nil {
 		t.Error("Send() should return error when not connected")
 	}
-
 	expectedError := "whatsapp not connected"
 	if err != nil && err.Error() != expectedError && !contains(err.Error(), expectedError) {
 		t.Errorf("Send() error = %v, want error containing %v", err, expectedError)
+	}
+
+	// Test with phone number without +
+	err2 := notifier.Send(ctx, "1234567890", "test message")
+	if err2 == nil {
+		t.Error("Send() should return error when not connected (without +)")
 	}
 }
 
