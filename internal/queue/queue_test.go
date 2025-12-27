@@ -3,7 +3,6 @@ package queue
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
 	"testing"
 )
 
